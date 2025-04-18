@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Catalogue de Véhicules - AutoRent{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Catalogue de Véhicules</h1>
+        <p>Trouvez le véhicule idéal pour tous vos déplacements</p>
+    </div>
+</section>
+
+<section class="catalog">
+    <div class="container">
+        <div class="catalog-layout">
+            <div class="filters">
+                <h3>Filtres</h3>
+                <form id="filter-form" method="get" action="{% url 'catalog' %}">
+                    <div class="filter-group">
+                        <h4>Marque</h4>
+                        <div class="checkbox-group">
+                            {% for brand in all_brands %}
+                            <label>
+                                <input type="checkbox" name="brand" value="{{ brand.slug }}"
+                                {% if brand.slug in selected_brands %}checked{% endif %}>
+                                {{ brand.name }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <h4>Motorisation</h4>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" name="fuel" value="essence"
+                                {% if 'essence' in selected_fuels %}checked{% endif %}>
+                                Essence
+                            </label>
+                            <label>
+                                <input type="checkbox" name="fuel" value="diesel"
+                                {% if 'diesel' in selected_fuels %}checked{% endif %}>
+                                Diesel
+                            </label>
+                            <label>
+                                <input type="checkbox" name="fuel" value="hybride"
+                                {% if 'hybride' in selected_fuels %}checked{% endif %}>
+                                Hybride
+                            </label>
+                            <label>
+                                <input type="checkbox" name="fuel" value="electrique"
+                                {% if 'electrique' in selected_fuels %}checked{% endif %}>
+                                Électrique
+                            </label>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <h4>Prix par jour</h4>
+                        <div class="range-slider">
+                            <label for="price-range">Prix maximum par jour</label>
+                            <input type="range" id="price-range" name="max_price" min="200" max="1000" step="5" value="{{ max_price|default:100 }}" title="Sélectionnez le prix maximum par jour">
+                            <div class="range-values">
+                                <span>200DH</span>
+                                <span id="price-value">{{ max_price|default:200 }}DH</span>
+                                <span>1000DH</span>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="sort" value="{{ sort }}">
+                    <button type="submit" class="btn btn-primary">Appliquer les filtres</button>
+                    <button type="reset" class="btn btn-outline">Réinitialiser</button>
+                </form>
+            </div>
+            <div class="catalog-content">
+                <div class="catalog-header">
+                    <div class="results-count">
+                        <p><span id="results-count">{{ cars.paginator.count }}</span> véhicules trouvés</p>
+                    </div>
+                    <div class="sort-options">
+                        <label for="sort">Trier par:</label>
+                        <select id="sort">
+                            <option value="price-asc" {% if sort == 'price-asc' %}selected{% endif %}>Prix croissant</option>
+                            <option value="price-desc" {% if sort == 'price-desc' %}selected{% endif %}>Prix décroissant</option>
+                            <option value="name-asc" {% if sort == 'name-asc' %}selected{% endif %}>Nom (A-Z)</option>
+                            <option value="name-desc" {% if sort == 'name-desc' %}selected{% endif %}>Nom (Z-A)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="cars-grid">
+                    {% for car in cars %}
+                    <div class="car-card">
+                        <div class="car-image">
+                            <img src="{{ car.main_image.url }}" alt="{{ car.name }}">
+                        </div>
+                        <div class="car-info">
+                            <div class="car-title">
+                                <h3>{{ car.name }}</h3>
+                                <span class="car-category">{{ car.category.name }}</span>
+                            </div>
+                            <div class="car-features">
+                                <div class="car-feature">
+                                    <i class="fas fa-gas-pump"></i>
+                                    <span>{{ car.get_fuel_display }}</span>
+                                </div>
+                                <div class="car-feature">
+                                    <i class="fas fa-cog"></i>
+                                    <span>{{ car.get_transmission_display }}</span>
+                                </div>
+                                <div class="car-feature">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ car.seats }} places</span>
+                                </div>
+                                <div class="car-feature">
+                                    <i class="fas fa-suitcase"></i>
+                                    <span>{{ car.luggage }} valises</span>
+                                </div>
+                            </div>
+                            <div class="car-price">
+                                <div class="price">{{ car.price_per_day }}DH <span>/ jour</span></div>
+                                <a href="{% url 'car_details' car.slug %}" class="btn btn-primary">Voir détails</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="no-results">
+                        <p>Aucun véhicule ne correspond à vos critères. Veuillez modifier vos filtres.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if cars.paginator.num_pages > 1 %}
+                <div class="pagination">
+                    <button class="pagination-btn" id="prev-page" {% if not cars.has_previous %}disabled{% endif %}>
+                        <i class="fas fa-chevron-left"></i> Précédent
+                    </button>
+                    <div class="page-numbers">
+                        {% for i in cars.paginator.page_range %}
+                        <button class="page-number {% if i == cars.number %}active{% endif %}" data-page="{{ i }}">{{ i }}</button>
+                        {% endfor %}
+                    </div>
+                    <button class="pagination-btn" id="next-page" {% if not cars.has_next %}disabled{% endif %}>
+                        Suivant <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update price value display
+        const priceRange = document.getElementById('price-range');
+        const priceValue = document.getElementById('price-value');
+        
+        if (priceRange && priceValue) {
+            priceRange.addEventListener('input', function() {
+                priceValue.textContent = this.value + 'DH';
+            });
+        }
+        
+        // Update sort parameter and submit form
+        const sortSelect = document.getElementById('sort');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function() {
+                const sortInput = document.querySelector('input[name="sort"]');
+                if (sortInput) {
+                    sortInput.value = this.value;
+                    document.getElementById('filter-form').submit();
+                }
+            });
+        }
+        
+        // Pagination
+        const pageButtons = document.querySelectorAll('.page-number');
+        if (pageButtons.length > 0) {
+            pageButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('page', page);
+                    window.location.href = url.toString();
+                });
+            });
+        }
+        
+        // Previous/Next page buttons
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        
+        if (prevPageBtn) {
+            prevPageBtn.addEventListener('click', function() {
+                if (!this.disabled) {
+                    const currentPage = parseInt(document.querySelector('.page-number.active').getAttribute('data-page'));
+                    if (currentPage > 1) {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('page', currentPage - 1);
+                        window.location.href = url.toString();
+                    }
+                }
+            });
+        }
+        
+        if (nextPageBtn) {
+            nextPageBtn.addEventListener('click', function() {
+                if (!this.disabled) {
+                    const currentPage = parseInt(document.querySelector('.page-number.active').getAttribute('data-page'));
+                    const totalPages = document.querySelectorAll('.page-number').length;
+                    if (currentPage < totalPages) {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('page', currentPage + 1);
+                        window.location.href = url.toString();
+                    }
+                }
+            });
+        }
+        
+        // Reset form
+        const filterForm = document.getElementById('filter-form');
+        if (filterForm) {
+            filterForm.addEventListener('reset', function() {
+                setTimeout(() => {
+                    this.submit();
+                }, 10);
+            });
+        }
+    });
+</script>
+{% endblock %}

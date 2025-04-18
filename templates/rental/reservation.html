@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Réservation - {{ car.name }} - AutoRent{% endblock %}
+
+{% block content %}
+<section class="breadcrumb">
+    <div class="container">
+        <ul>
+            <li><a href="{% url 'home' %}">Accueil</a></li>
+            <li><a href="{% url 'catalog' %}">Véhicules</a></li>
+            <li><a href="{% url 'car_details' car.slug %}">{{ car.name }}</a></li>
+            <li>Réservation</li>
+        </ul>
+    </div>
+</section>
+
+<section class="reservation">
+    <div class="container">
+        <h1 class="page-title">Réservation de {{ car.name }}</h1>
+        <div class="reservation-layout">
+            <div class="reservation-form">
+                <form id="reservation-form" method="post" action="{% url 'reservation' car.slug %}">
+                    {% csrf_token %}
+                    <div class="form-step active" id="step-1">
+                        <h3>Informations de réservation</h3>
+                        <div class="form-group">
+                            <label for="id_start_date">Date de début</label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}<div class="error">{{ form.start_date.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_end_date">Date de fin</label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}<div class="error">{{ form.end_date.errors }}</div>{% endif %}
+                        </div>
+                        {% if form.non_field_errors %}<div class="error">{{ form.non_field_errors }}</div>{% endif %}
+                        <button type="button" class="btn next-step">Continuer</button>
+                    </div>
+
+                    <div class="form-step" id="step-2">
+                        <h3>Paiement</h3>
+                        <label><input type="radio" name="payment-method" value="card" checked> Carte</label>
+                        <label><input type="radio" name="payment-method" value="paypal"> PayPal</label><br>
+                        <div class="card-info">
+                            <input type="text" placeholder="Numéro de carte">
+                            <input type="text" placeholder="MM/AA">
+                            <input type="text" placeholder="CVV">
+                        </div><br>
+                        <button type="button" class="btn prev-step">Retour</button>
+                        <button type="submit" class="btn btn-primary">Finaliser</button>
+                    </div>
+
+                    <div class="form-step" id="step-3">
+                        <h3>Confirmation</h3>
+                        <p>Merci pour votre réservation !</p>
+                        <button type="button" class="btn prev-step">Retour</button>
+                        <button type="submit" class="btn">Confirmer</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="reservation-summary">
+                <h3>Récapitulatif</h3>
+                <p><strong>Voiture:</strong> {{ car.name }}</p>
+                <p><strong>Catégorie:</strong> {{ car.category.name }}</p>
+                <p><strong>Carburant:</strong> {{ car.get_fuel_display }}</p>
+                <p><strong>Prix:</strong> {{ car.price_per_day }} DH / jour</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const steps = document.querySelectorAll('.form-step');
+        const nextBtns = document.querySelectorAll('.next-step');
+        const prevBtns = document.querySelectorAll('.prev-step');
+        let current = 0;
+
+        function showStep(index) {
+            steps.forEach((s, i) => s.classList.toggle('active', i === index));
+        }
+
+        nextBtns.forEach(btn => btn.addEventListener('click', () => {
+            if (current < steps.length - 1) {
+                current++;
+                showStep(current);
+            }
+        }));
+
+        prevBtns.forEach(btn => btn.addEventListener('click', () => {
+            if (current > 0) {
+                current--;
+                showStep(current);
+            }
+        }));
+
+        showStep(current);
+    });
+</script>
+{% endblock %}

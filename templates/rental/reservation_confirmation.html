@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirmation - AutoRent{% endblock %}
+
+{% block content %}
+<section class="confirmation">
+    <div class="container">
+        <div class="confirmation-message">
+            <h1>Merci pour votre réservation !</h1>
+            <p>Votre paiement a été traité avec succès. Voici les détails de votre réservation :</p>
+        </div>
+
+        <div class="reservation-details">
+            <div class="detail-section">
+                <h3>Véhicule</h3>
+                <p><strong>Nom :</strong> {{ reservation.car.name }}</p>
+                <p><strong>Catégorie :</strong> {{ reservation.car.category.name }}</p>
+                <p><strong>Carburant :</strong> {{ reservation.car.get_fuel_display }}</p>
+            </div>
+
+            <div class="detail-section">
+                <h3>Dates de location</h3>
+                <p><strong>Début :</strong> {{ reservation.start_date }}</p>
+                <p><strong>Fin :</strong> {{ reservation.end_date }}</p>
+                <p><strong>Durée :</strong> {{ reservation.duration }} jour{{ reservation.duration|pluralize }}</p>
+            </div>
+
+            <div class="detail-section">
+                <h3>Paiement</h3>
+                <p><strong>Montant total :</strong> {{ reservation.total_price }} DH</p>
+                <p><strong>Méthode :</strong> {{ reservation.payment_method }}</p>
+            </div>
+        </div>
+
+        <div class="confirmation-actions">
+            <a href="{% url 'home' %}" class="btn btn-primary">Retour à l'accueil</a>
+            <a href="{% url 'user_reservations' %}" class="btn btn-secondary">Voir mes réservations</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

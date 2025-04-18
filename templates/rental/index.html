@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AutoRent - Location de Voitures{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Location de voitures simple et transparente</h1>
+            <p>Trouvez le véhicule idéal pour tous vos déplacements avec notre large gamme de voitures</p>
+            <div class="search-form">
+                <form id="quick-search" method="get" action="{% url 'catalog' %}">
+                    <div class="form-group">
+                        <label for="pickup-date">Date de début</label>
+                        <input type="date" id="pickup-date" name="start_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="return-date">Date de fin</label>
+                        <input type="date" id="return-date" name="end_date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <h2 class="section-title">Pourquoi choisir AutoRent ?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <h3>Large choix de véhicules</h3>
+                <p>Des citadines aux SUV en passant par les véhicules électriques, trouvez la voiture adaptée à vos besoins.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <h3>Prix transparents</h3>
+                <p>Pas de frais cachés. Nos tarifs incluent toutes les charges et assurances nécessaires.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h3>Véhicules écologiques</h3>
+                <p>Découvrez notre gamme de véhicules électriques et hybrides pour des déplacements plus respectueux de l'environnement.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Réservation rapide</h3>
+                <p>Réservez votre véhicule en quelques clics et recevez une confirmation instantanée.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="popular-cars">
+    <div class="container">
+        <h2 class="section-title">Nos véhicules populaires</h2>
+        <div class="cars-grid">
+            {% for car in featured_cars %}
+            <div class="car-card">
+                <div class="car-image">
+                    <img src="{{ car.main_image.url }}" alt="{{ car.name }}">
+                </div>
+                <div class="car-info">
+                    <div class="car-title">
+                        <h3>{{ car.name }}</h3>
+                    </div>
+                    <div class="car-features">
+                        <div class="car-feature">
+                            <i class="fas fa-gas-pump"></i>
+                            <span>{{ car.get_fuel_display }}</span>
+                        </div>
+                        <div class="car-feature">
+                            <i class="fas fa-cog"></i>
+                            <span>{{ car.get_transmission_display }}</span>
+                        </div>
+                        <div class="car-feature">
+                            <i class="fas fa-users"></i>
+                            <span>{{ car.seats }} places</span>
+                        </div>
+                        <div class="car-feature">
+                            <i class="fas fa-suitcase"></i>
+                            <span>{{ car.luggage }} valises</span>
+                        </div>
+                    </div>
+                    <div class="car-price">
+                        <div class="price">{{ car.price_per_day }}€ <span>/ jour</span></div>
+                        <a href="{% url 'car_details' car.slug %}" class="btn btn-primary">Voir détails</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="center">
+            <a href="{% url 'catalog' %}" class="btn btn-primary">Voir tous les véhicules</a>
+        </div>
+    </div>
+</section>
+
+<section class="testimonials">
+    <div class="container">
+        <h2 class="section-title">Ce que disent nos clients</h2>
+        <div class="testimonials-slider">
+            {% for testimonial in testimonials %}
+            <div class="testimonial">
+                <div class="rating">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= testimonial.rating %}
+                            <i class="fas fa-star"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <p class="quote">"{{ testimonial.comment }}"</p>
+                <div class="author">
+                    <p class="name">{{ testimonial.user.get_full_name }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Prêt à prendre la route ?</h2>
+            <p>Inscrivez-vous dès maintenant et bénéficiez de 10% de réduction sur votre première location.</p>
+            <a href="{% url 'register' %}" class="btn btn-light">S'inscrire maintenant</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

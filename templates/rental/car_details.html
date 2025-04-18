@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ car.name }} - AutoRent{% endblock %}
+
+{% block content %}
+<section class="breadcrumb">
+    <div class="container">
+        <ul>
+            <li><a href="{% url 'home' %}">Accueil</a></li>
+            <li><a href="{% url 'catalog' %}">Véhicules</a></li>
+            <li>{{ car.name }}</li>
+        </ul>
+    </div>
+</section>
+
+<section class="car-details">
+    <div class="container">
+        <div class="car-details-layout">
+            <div class="car-gallery">
+                <div class="main-image">
+                    <img src="{{ car.main_image.url }}" alt="{{ car.name }}" id="main-image">
+                </div>
+                <div class="thumbnails">
+                    <div class="thumbnail active" data-index="0">
+                        <img src="{{ car.main_image.url }}" alt="{{ car.name }} - Image principale">
+                    </div>
+                    {% for image in car.images.all %}
+                    <div class="thumbnail" data-index="{{ forloop.counter }}">
+                        <img src="{{ image.image.url }}" alt="{{ car.name }} - Image {{ forloop.counter }}">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="car-info-details">
+                <h2>{{ car.name }}</h2>
+                <div class="car-meta">
+                    <div class="car-meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Année: {{ car.year }}</span>
+                    </div>
+                    <div class="car-meta-item">
+                        <i class="fas fa-gas-pump"></i>
+                        <span>{{ car.get_fuel_display }}</span>
+                    </div>
+                    <div class="car-meta-item">
+                        <i class="fas fa-cog"></i>
+                        <span>{{ car.get_transmission_display }}</span>
+                    </div>
+                    <div class="car-meta-item">
+                        <i class="fas fa-users"></i>
+                        <span>{{ car.seats }} places</span>
+                    </div>
+                </div>
+                <div class="car-description">
+                    <h3>Description</h3>
+                    <p>{{ car.description }}</p>
+                </div>
+                <div class="car-features">
+                    <h3>Caractéristiques</h3>
+                    <div class="car-features-list">
+                        {% for feature in car.features.all %}
+                        <div class="car-feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>{{ feature.name }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="car-sidebar">
+                <div class="car-price-details">
+                    <div class="price">{{ car.price_per_day }}DH <span>/ jour</span></div>
+                    <p class="price-note">Prix incluant l'assurance de base et le kilométrage illimité</p>
+                </div>
+                <div class="availability-check">
+                    <h3>Vérifier la disponibilité</h3>
+                    <form id="availability-form" action="{% url 'reservation' car.slug %}" method="get">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pickup-date">Date de début</label>
+                                <input type="date" id="pickup-date" name="start_date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="return-date">Date de fin</label>
+                                <input type="date" id="return-date" name="end_date" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Réserver maintenant</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="similar-cars">
+    <div class="container">
+        <h2 class="section-title">Véhicules similaires</h2>
+        <div class="cars-grid">
+            {% for car in similar_cars %}
+            <div class="car-card">
+                <div class="car-image">
+                    <img src="{{ car.main_image.url }}" alt="{{ car.name }}">
+                </div>
+                <div class="car-info">
+                    <div class="car-title">
+                        <h3>{{ car.name }}</h3>
+                        <span class="car-category">{{ car.get_category_display }}</span>
+                    </div>
+                    <div class="car-features">
+                        <div class="car-feature">
+                            <i class="fas fa-gas-pump"></i>
+                            <span>{{ car.get_fuel_display }}</span>
+                        </div>
+                        <div class="car-feature">
+                            <i class="fas fa-cog"></i>
+                            <span>{{ car.get_transmission_display }}</span>
+                        </div>
+                        <div class="car-feature">
+                            <i class="fas fa-users"></i>
+                            <span>{{ car.seats }} places</span>
+                        </div>
+                        <div class="car-feature">
+                            <i class="fas fa-suitcase"></i>
+                            <span>{{ car.luggage }} valises</span>
+                        </div>
+                    </div>
+                    <div class="car-price">
+                        <div class="price">{{ car.price_per_day }}DH<span>/ jour</span></div>
+                        <a href="{% url 'car_details' car.slug %}" class="btn btn-primary">Voir détails</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize thumbnail gallery
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        const mainImage = document.getElementById('main-image');
+        
+        if (thumbnails.length > 0 && mainImage) {
+            thumbnails.forEach(thumbnail => {
+                thumbnail.addEventListener('click', function() {
+                    // Remove active class from all thumbnails
+                    thumbnails.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked thumbnail
+                    this.classList.add('active');
+                    
+                    // Update main image
+                    const img = this.querySelector('img');
+                    mainImage.src = img.src;
+                });
+            });
+        }
+        
+        // Set minimum date for date inputs to today
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        if (dateInputs.length > 0) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInputs.forEach(input => {
+                input.setAttribute('min', today);
+            });
+        }
+        
+        // Initialize date inputs with default values
+        const pickupDateInput = document.getElementById('pickup-date');
+        const returnDateInput = document.getElementById('return-date');
+        
+        if (pickupDateInput && returnDateInput) {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const todayFormatted = today.toISOString().split('T')[0];
+            const tomorrowFormatted = tomorrow.toISOString().split('T')[0];
+            
+            pickupDateInput.value = todayFormatted;
+            returnDateInput.value = tomorrowFormatted;
+            
+            // Ensure return date is always after pickup date
+            pickupDateInput.addEventListener('change', function() {
+                const pickupDate = new Date(this.value);
+                const returnDate = new Date(returnDateInput.value);
+                
+                if (returnDate <= pickupDate) {
+                    const nextDay = new Date(pickupDate);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    returnDateInput.value = nextDay.toISOString().split('T')[0];
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

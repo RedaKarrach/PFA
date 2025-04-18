@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- En-tête -->
+    <div class="dashboard-header">
+        <h1>Welcome, {{ request.user.first_name }}!</h1>
+    </div>
+
+    <!-- Réservations actives -->
+    <section class="reservation-section">
+        <h2><i class="fas fa-calendar-alt"></i> Réservations en cours</h2>
+        {% if active_reservations %}
+            <div class="reservation-cards">
+                {% for reservation in active_reservations %}
+                <div class="reservation-card">
+                    <div class="car-image">
+                        <img src="{{ reservation.car.main_image.url }}" alt="{{ reservation.car.name }}">
+                    </div>
+                    <div class="reservation-details">
+                        <h3>{{ reservation.car.brand.name }} {{ reservation.car.name }}</h3>
+                        <p class="date-range">
+                            {{ reservation.start_date|date:"d M Y" }} - {{ reservation.end_date|date:"d M Y" }}
+                        </p>
+                        <div class="status-badge {{ reservation.status }}">
+                            {{ reservation.get_status_display }}
+                        </div>
+                        <p class="price">
+                            Total: {{ reservation.total_price }} €
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-reservations">
+                <p>Aucune réservation active</p>
+                <a href="{% url 'catalog' %}" class="btn btn-primary">Réserver maintenant</a>
+            </div>
+        {% endif %}
+    </section>
+    
+    <section class="reservation-section">
+        <h2>Réservations passées</h2>
+        {% if past_reservations %}
+            <div class="reservation-cards">
+                {% for reservation in past_reservations %}
+                <div class="reservation-card">
+                    <h3>{{ reservation.car.name }}</h3>
+                    <p>{{ reservation.start_date|date:"d M Y" }} - {{ reservation.end_date|date:"d M Y" }}</p>
+                    <p>Statut: {{ reservation.get_status_display }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Aucune réservation passée.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

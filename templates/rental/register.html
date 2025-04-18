@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inscription - AutoRent{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-form-container">
+                <h2>Inscription</h2>
+                <form method="post" class="auth-form">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="id_first_name">Prénom</label>
+                            <input type="text" name="first_name" id="id_first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_last_name">Nom</label>
+                            <input type="text" name="last_name" id="id_last_name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_username">Nom d'utilisateur</label>
+                        <input type="text" name="username" id="id_username" required>
+                        {% if form.username.errors %}
+                        <p class="error-message">{{ form.username.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_email">Email</label>
+                        <input type="email" name="email" id="id_email" required>
+                        {% if form.email.errors %}
+                        <p class="error-message">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_password1">Mot de passe</label>
+                        <div class="password-input">
+                            <input type="password" name="password1" id="id_password1" required>
+                            <button type="button" class="toggle-password" data-target="id_password1">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if form.password1.errors %}
+                        <p class="error-message">{{ form.password1.errors.0 }}</p>
+                        {% endif %}
+                        <small class="form-text text-muted">
+                            Votre mot de passe doit contenir au moins 8 caractères, ne peut pas être trop similaire à vos autres informations personnelles, ne peut pas être un mot de passe couramment utilisé et ne peut pas être entièrement numérique.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_password2">Confirmer le mot de passe</label>
+                        <div class="password-input">
+                            <input type="password" name="password2" id="id_password2" required>
+                            <button type="button" class="toggle-password" data-target="id_password2">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if form.password2.errors %}
+                        <p class="error-message">{{ form.password2.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <div class="terms-checkbox">
+                            <input type="checkbox" name="terms" id="terms" required>
+                            <label for="terms">J'accepte les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialité</a></label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">S'inscrire</button>
+                </form>
+                <div class="social-login">
+                    <p>Ou s'inscrire avec</p>
+                    <div class="social-buttons">
+                        <button class="social-btn google">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                        <button class="social-btn facebook">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </button>
+                    </div>
+                </div>
+                <div class="auth-footer">
+                    <p>Vous avez déjà un compte ? <a href="{% url 'login' %}">Se connecter</a></p>
+                </div>
+            </div>
+            <div class="auth-image">
+                <img src="{% static 'images/register-bg.jpg' %}" alt="Location de voiture">
+                <div class="auth-image-overlay">
+                    <h3>Rejoignez AutoRent</h3>
+                    <p>Inscrivez-vous pour profiter de nos offres exclusives et réserver votre voiture en quelques clics.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle password visibility
+        const togglePasswordBtns = document.querySelectorAll('.toggle-password');
+        if (togglePasswordBtns.length > 0) {
+            togglePasswordBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const passwordInput = document.getElementById(targetId);
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}
