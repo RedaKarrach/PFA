@@ -32,6 +32,7 @@
                         <div class="form-group">
                             <label for="id_end_date">Date de fin</label>
                             {{ form.end_date }}
+                            {{ form.as_p }}
                             {% if form.end_date.errors %}<div class="error">{{ form.end_date.errors }}</div>{% endif %}
                         </div>
                         {% if form.non_field_errors %}<div class="error">{{ form.non_field_errors }}</div>{% endif %}

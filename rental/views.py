@@ -104,6 +104,8 @@ def reservation(request, car_slug):
             reservation = form.save(commit=False)
             reservation.user = request.user
             reservation.car = car
+            reservation.save()
+            messages.success(request, 'Votre réservation a été confirmée avec succès !')
             
             # Calculate total price
             start_date = form.cleaned_data['start_date']
