@@ -72,6 +72,7 @@ class Reservation(models.Model):
         ('completed', 'Terminée'),
     ]
     
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reservations')
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='reservations')
     start_date = models.DateField()
@@ -80,6 +81,8 @@ class Reservation(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    payment_method = models.CharField(max_length=50, blank=True, null=True)  # ➕ Ajout ici 4/24/2025
+    ...
     
     def __str__(self):
         return f"Reservation #{self.id} - {self.user.username} - {self.car.name}"

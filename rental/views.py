@@ -13,6 +13,8 @@ from .models import Car,CarBrand,Reservation, Testimonial, UserProfile
 from .forms import ReservationForm, UserProfileForm, TestimonialForm, SignUpForm
 from django.contrib.auth import logout
 from django.views.decorators.http import require_GET
+from django.conf import settings
+from django.views import View
 
 
 def home(request):
@@ -104,17 +106,15 @@ def reservation(request, car_slug):
             reservation = form.save(commit=False)
             reservation.user = request.user
             reservation.car = car
-            reservation.save()
-            messages.success(request, 'Votre réservation a été confirmée avec succès !')
             
-            # Calculate total price
+            # Calculate total price BEFORE saving
             start_date = form.cleaned_data['start_date']
             end_date = form.cleaned_data['end_date']
             days = (end_date - start_date).days
-            
+
             # Base price
             total_price = car.price_per_day * days
-            
+
             # Add options price
             options = request.POST.getlist('options')
             option_prices = {
@@ -123,13 +123,16 @@ def reservation(request, car_slug):
                 'child_seat': Decimal('8.00'),
                 'additional_driver': Decimal('10.00'),
             }
-            
+
             for option in options:
                 if option in option_prices:
                     total_price += option_prices[option] * days
-            
-            reservation.total_price = total_price
-            reservation.save()
+
+            reservation.total_price = total_price  # ✅ Set total_price
+
+            reservation.payment_method = "Carte bancaire"  # ou "PayPal", "Sur place", etc.
+
+            reservation.save()  # ✅ Save only after total_price is set
             
             # Save options
             for option in options:
@@ -138,7 +141,7 @@ def reservation(request, car_slug):
                         name=option.replace('_', ' ').title(),
                         price=option_prices[option] * days
                     )
-            
+
             messages.success(request, 'Votre réservation a été confirmée avec succès!')
             return redirect('reservation_confirmation', reservation_id=reservation.id)
     else:
@@ -156,6 +159,7 @@ def reservation(request, car_slug):
     }
     
     return render(request, 'rental/reservation.html', context)
+
 
 @login_required
 def reservation_confirmation(request, reservation_id):
@@ -289,3 +293,13 @@ def contact(request):
         return render(request, 'rental/contact.html')
 
     return render(request, 'rental/contact.html')
+
+
+
+
+
+
+
+
+
+

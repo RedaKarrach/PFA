@@ -43,11 +43,11 @@
                         <h3>Paiement</h3>
                         <label><input type="radio" name="payment-method" value="card" checked> Carte</label>
                         <label><input type="radio" name="payment-method" value="paypal"> PayPal</label><br>
-                        <div class="card-info">
-                            <input type="text" placeholder="Numéro de carte">
-                            <input type="text" placeholder="MM/AA">
-                            <input type="text" placeholder="CVV">
-                        </div><br>
+                        <form id="payment-form" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="car_id" value="{{ car.id }}">
+                            <button type="submit" id="checkout-button" class="btn btn-primary">Payer avec carte</button>
+                        </form>
                         <button type="button" class="btn prev-step">Retour</button>
                         <button type="submit" class="btn btn-primary">Finaliser</button>
                     </div>
@@ -101,5 +101,6 @@
 
         showStep(current);
     });
-</script>
+ </script>   
+
 {% endblock %}

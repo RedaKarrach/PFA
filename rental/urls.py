@@ -2,6 +2,8 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import CustomLoginView
 from . import views
+from .views import CreateCheckoutSessionView
+from django.views.generic import TemplateView
 
 urlpatterns = [
     # Main pages
@@ -38,4 +40,8 @@ urlpatterns = [
     
     # API endpoints
     path('api/check-availability/', views.check_availability, name='check_availability'),
+    path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
+    path('success/', TemplateView.as_view(template_name='rental/success.html'), name='success'),
+    path('cancel/', TemplateView.as_view(template_name='rental/cancel.html'), name='cancel'),
+
 ]
